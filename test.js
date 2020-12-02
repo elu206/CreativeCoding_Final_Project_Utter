@@ -4,7 +4,7 @@ let grass;
 let mic;
 let ground;
 let gravity = 0.3;
-let jump = -0.3;
+let jump = -3;
 let SCENE_W = 1300 * 10;
 
 function preload(){
@@ -15,8 +15,8 @@ function preload(){
 
 function setup(){
 	createCanvas(1300, 725);
-	// mic = new p5.AudioIn();
-	// mic.start();
+	mic = new p5.AudioIn();
+	mic.start();
 	ground = new Group();
 	for (let x = 50; x < width; x += 100) {
 		grass = createSprite(x, height - 50);
@@ -38,15 +38,14 @@ function setup(){
 function draw(){
 	background(100);
 	game();
-
 }
 
 function game(){
-	// let vol = mic.getLevel();
-	// if (vol >= 0.1){
-	// 	goat.velocity.y = jump;
-	// }
-	// goat.velocity.y += gravity;
+	let vol = mic.getLevel();
+	if (vol >= 0.1){
+		goat.velocity.y = jump;
+	}
+	goat.velocity.y += gravity;
 	goat.velocity.x = 10;
 
 
