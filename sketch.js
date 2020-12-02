@@ -4,19 +4,27 @@
 // move & jump based on volume.  However, in this game, the theme is very different.  You play as a kid goat who is
 // lost and trying to make his way back home.
 // The goat keeps going until he reaches the farm, where his dad is. (maybe after like, fifteen obstacles ?)
+// Also, when I get frustrated coding it, now I will have a reason to yell at my project.
 // All images & sprites are my own.
 // Font is Fredoka One Regular from https://fonts.google.com/specimen/Fredoka+One?query=fredoka
 // Libraries used: p5 sound library (for audio input) & p5 play library (for collisions, sprites, animations, etc.)
 
+// Finished 12/2/2020:
+// Player mechanics with microphone input, continuous side scrolling camera, grass sprite collide
+// Most sprites are done.
+
 // To do:
-// Finish drawing sprites for the walking goat, the grass, the farm & goat dad, and the sad goat face for the lose screen.
-// Finish coding the actual game.
+// Finish drawing sprites for the goat's walk cycle & jump.
+// Code the obstacles - replace grass sprites with water sprites
 // Figure out how many obstacles there should be / when to stop the game
 // Decide whether to add background music/sound effects (should i do it if the player is basically screaming over it?)
 
 let state = 1; //tell which screen its on
 let cloud1, cloud2, cloud3; //only three clouds (too many would seem too cluttered) so i didn't think it was necessary to do an array
 let mic; //microphone
+let SCENE_W = 1300 * 10; //scene width - using camera for sidescrolling effect
+let ground; //group for ground
+let grounded = true; //boolean to check if landed after jumping
 
 function preload(){ //loading images and font
   sky = loadImage('images/background sky.png');
@@ -24,6 +32,10 @@ function preload(){ //loading images and font
   myCloud = loadImage('images/clouds.png');
 	twogoats = loadImage('images/goatsplural.png');
 	goatlost = loadImage('images/sadgoat.png');
+	grassimg = loadImage('images/grass.png')
+	waterimg = loadImage('images/thewater.png');
+	idlegoat = loadImage('images/idlegoat.png');
+	farm = loadImage('images/farm.png');
 	myFont = loadFont('fonts/FredokaOne-Regular copy.ttf');
 }
 
@@ -32,6 +44,17 @@ function setup() {
   cloud1 = new Clouds(200, 100, 1.5); //creating clouds
   cloud2 = new Clouds(1000, 250, 2);
   cloud3 = new Clouds(750, 400, 1);
+
+	//grass
+	ground = new Group();
+	water = new Group();
+
+	for (let x = 50; x < width; x += 100) {
+		grass = createSprite(x, height - 50);
+		grass.addImage(grassimg);
+		ground.add(grass);
+	}
+
 }
 
 function draw(){
@@ -44,6 +67,8 @@ function draw(){
   cloud1.move();
   cloud2.move();
   cloud3.move();
+
+
 
 	fill(255);
   strokeWeight(10);
@@ -69,16 +94,20 @@ function draw(){
 function homeScreen(){ //code for home screen (STATE = 1)
 	textSize(100);
   text('GO HOME, GOAT!', width/2, 125); //title
+	for (let x = 50; x < width; x += 100) {
+		image(grassimg, x, height - 50, 100, 100);
+	}
 
 	//instructions
   textSize(50);
   text('press ENTER to start the game', width/2, 480); //start
 	text('press OPTION to learn how to play', width/2, 550); //rules
   image(goathead, width/2, 330, 450, 450); //goat head
+
 }
 
 function game(){ //code for game (STATE = 2)
-
+  drawSprites();
 }
 
 function howToPlay(){ //code for rules page (STATE = 3)
@@ -86,22 +115,27 @@ function howToPlay(){ //code for rules page (STATE = 3)
   text('HOW TO PLAY', width/2, 125); //headline
 	textSize(30);
 	strokeWeight(5);
-
+	for (let x = 50; x < width; x += 100) {
+		image(grassimg, x, height - 50, 100, 100);
+	}
 	//instructions
-	text('allow the computer access to your mic &', width/2, 200);
+	text('allow computer access to your mic &', width/2, 200);
 	text('yell to guide the goat home.', width/2, 250);
-	text('the louder you yell, the higher you jump.', width/2, 300);
+	text('the louder you yell, the higher the goat jumps.', width/2, 300);
 	textSize(50);
 	text('press ENTER to start the game', width/2, 380);
 }
 
 function loseScreen(){ //code for lose (STATE = 4)
 	textSize(100);
-  text('YOU LOSE', width/2, 125);
+  text('YOU LOSE...', width/2, 125);
 	image(goatlost, width/2, 330, 450, 450); //goat lost
 	textSize(50);
-	text('press ENTER to try again', width/2, 525);
-	text('press OPTION to learn how to play', width/2, 600);
+	text('press ENTER to try again', width/2, 480);
+	text('press OPTION to learn how to play', width/2, 550);
+	for (let x = 50; x < width; x += 100) {
+		image(waterimg, x, height - 50, 100, 100);
+	}
 }
 
 function winScreen(){ //code for win (STATE = 5)
@@ -110,7 +144,10 @@ function winScreen(){ //code for win (STATE = 5)
 	image(twogoats, width/2, 330, 650, 450); //goat is back with goat dad image
 	textSize(50);
 	text('press ENTER to play again', width/2, 525);
-	text('press OPTION to learn how to play', width/2, 600);
+	for (let x = 50; x < width; x += 100) {
+		image(grassimg, x, height - 50, 100, 100);
+	}
+	image(farm, width - 300, height /2 + 13, 600, 500);
 }
 
 function keyPressed(){

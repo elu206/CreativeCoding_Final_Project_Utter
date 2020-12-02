@@ -8,9 +8,9 @@ let jump = -3;
 let SCENE_W = 1300 * 10;
 
 function preload(){
-	grassimg = loadImage('grass.png');
-	idlegoat= loadImage('idlegoat.png');
-	water = loadImage('thewater.png');
+	grassimg = loadImage('images/grass.png');
+	idlegoat= loadImage('images/idlegoat.png');
+	water = loadImage('images/thewater.png');
 }
 
 function setup(){
