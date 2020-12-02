@@ -6,7 +6,6 @@ let ground;
 let gravity = 0.3;
 let jump = -0.3;
 let SCENE_W = 1300 * 10;
-let grounded = true;
 
 function preload(){
 	grassimg = loadImage('grass.png');
@@ -48,12 +47,11 @@ function game(){
 	// 	goat.velocity.y = jump;
 	// }
 	// goat.velocity.y += gravity;
-
-	goat.velocity.x = (camera.mouseX-goat.position.x)/20; //experiments with camera pos
+	goat.velocity.x = 10;
 
 
 	camera.position.y = height/2
-	camera.position.x = goat.position.x
+	camera.position.x = goat.position.x + width/4
 
 	if(goat.position.x < 0){
     goat.position.x = 0;
