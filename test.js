@@ -15,10 +15,10 @@ function preload(){
 
 function setup(){
 	createCanvas(1300, 725);
-	mic = new p5.AudioIn();
+	mic = new p5.AudioIn(); //allowing for microphone input
 	mic.start();
 	ground = new Group();
-	for (let x = 50; x < width; x += 100) {
+	for (let x = 50; x < width; x += 100) { //creating grass sprites
 		grass = createSprite(x, height - 50);
 		grass.addImage(grassimg);
 		ground.add(grass);
@@ -30,7 +30,7 @@ function setup(){
 		ground.add(grass);
 	}
 
-	goat = createSprite(width/2, height-100);
+	goat = createSprite(width/2, height-100); //creating goat sprite
 	goat.addImage(idlegoat);
 
 }
@@ -41,26 +41,20 @@ function draw(){
 }
 
 function game(){
-	let vol = mic.getLevel();
+	let vol = mic.getLevel(); //getting volume of microphone
 	if (vol >= 0.1){
-		goat.velocity.y = jump;
+		goat.velocity.y = jump; //if volume is greater than 0.1, then goat jumps
 	}
-	goat.velocity.y += gravity;
-	goat.velocity.x = 10;
+	goat.velocity.y += gravity; //gravity brings goat back to ground
+	goat.velocity.x = 10; //x speed of goat - BUG: glitching x movement when not jumping... not sure why yet
 
+	camera.position.y = height/2 //side scrolling camera
+	camera.position.x = goat.position.x //placing goat in center of screen
 
-	camera.position.y = height/2
-	camera.position.x = goat.position.x + width/4
-
-	if(goat.position.x < 0){
-    goat.position.x = 0;
-	}
-
-	if(goat.position.x > SCENE_W){
+	if(goat.position.x > SCENE_W){ //so that the goat stops and does not go off the screen
     goat.position.x = SCENE_W;
 	}
 
-
-	goat.collide(ground);
+	goat.collide(ground); //collision detection for goat & grass sprites
 	drawSprites();
 }
