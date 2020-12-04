@@ -3,14 +3,15 @@
 let grass;
 let mic;
 let ground;
-let gravity = 0.3;
+let gravity = 1;
 let jump = -3;
 let SCENE_W = 1300 * 10;
+let grounded = true;
 
 function preload(){
-	grassimg = loadImage('grass copy.png');
-	idlegoat= loadImage('idlegoat copy.png');
-	water = loadImage('thewater copy.png');
+	grassimg = loadImage('grass.png');
+	idlegoat= loadImage('idlegoat.png');
+	water = loadImage('thewater.png');
 }
 
 function setup(){
@@ -44,16 +45,30 @@ function game(){
 	let vol = mic.getLevel(); //getting volume of microphone
 	if (vol >= 0.1){
 		goat.velocity.y = jump; //if volume is greater than 0.1, then goat jumps
+	} else if (vol < 0.1){ // adding this fixed the bug of glitching x movement when not jumping
+		goat.velocity.y = 0;
 	}
-	goat.velocity.y += gravity; //gravity brings goat back to ground
-	goat.velocity.x = 10; //x speed of goat - BUG: glitching x movement when not jumping... not sure why yet
+	if (goat.position.y == height-100){
+		grounded = true
+	} else{
+		grounded = false
+	}
+	if (grounded == false){
+		goat.velocity.y += gravity
+	}
+
+	//gravity brings goat back to ground
+	goat.velocity.x = 10; // x speed of goat
 
 	camera.position.y = height/2 //side scrolling camera
 	camera.position.x = goat.position.x //placing goat in center of screen
 
 	if(goat.position.x > SCENE_W){ //so that the goat stops and does not go off the screen
     goat.position.x = SCENE_W;
+		goat.velocity.x = 0;
 	}
+
+	console.log(goat.position.x);
 
 	goat.collide(ground); //collision detection for goat & grass sprites
 	drawSprites();
