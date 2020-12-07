@@ -3,8 +3,8 @@
 let grass;
 let mic;
 let ground;
-let gravity = 1;
-let jump = -3;
+let gravity = 5;
+let jump = -6;
 let SCENE_W = 1300 * 10;
 let grounded = true;
 
@@ -12,10 +12,13 @@ function preload(){
 	grassimg = loadImage('grass.png');
 	idlegoat= loadImage('idlegoat.png');
 	water = loadImage('thewater.png');
+	bgmusic = loadSound('background music.mp3');
+	bgmusic.setVolume(0.5);
 }
 
 function setup(){
 	createCanvas(1300, 725);
+	bgmusic.loop();
 	mic = new p5.AudioIn(); //allowing for microphone input
 	mic.start();
 	ground = new Group();
@@ -44,7 +47,7 @@ function draw(){
 function game(){
 	let vol = mic.getLevel(); //getting volume of microphone
 	if (vol >= 0.1){
-		goat.velocity.y = jump; //if volume is greater than 0.1, then goat jumps
+		goat.velocity.y += jump; //if volume is greater than 0.1, then goat jumps
 	} else if (vol < 0.1){ // adding this fixed the bug of glitching x movement when not jumping
 		goat.velocity.y = 0;
 	}
