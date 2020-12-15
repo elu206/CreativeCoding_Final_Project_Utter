@@ -53,7 +53,7 @@ function preload(){ //loading images, font, sounds
 	splash = loadSound('sounds/splash.wav');
 	splash.setVolume(2);
 	squawk = loadSound('sounds/squawk.wav');
-  squawk.setVolume(1.5);
+	squawk.setVolume(1.5);
 }
 
 function setup() {
@@ -241,8 +241,9 @@ function howToPlay(){ //code for rules page (STATE = 3)
 	text('allow computer access to your mic &', width/2, 200);
 	text('yell to guide the goat home.', width/2, 250);
 	text('the louder you yell, the higher the goat jumps.', width/2, 300);
+	text('try not to run into the birds or drown', width/2, 350);
 	textSize(50);
-	text('press ENTER to start the game', width/2, 380);
+	text('press ENTER to start the game', width/2, 430);
 }
 
 function loseScreen(){ //code for lose (STATE = 4)
