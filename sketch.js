@@ -3,23 +3,22 @@
 // Concept: a game where the mechanics are similar to the app game Scream Go Hero: audio input makes your character
 // move & jump based on volume.  However, in this game, the theme is very different.  You play as a kid goat who is
 // lost and trying to make his way back home.
-// The goat keeps going until he reaches the farm, where his dad is. (maybe after like, fifteen obstacles ?)
+// The goat keeps going until he reaches the farm, where his dad is.
 // Also, when I get frustrated coding it, now I will have a reason to yell at my project.
 // All images & sprites are my own.
 // Font is Fredoka One Regular from https://fonts.google.com/specimen/Fredoka+One?query=fredoka
 // Libraries used: p5 sound library (for audio input) & p5 play library (for collisions, sprites, animations, etc.)
 
-// Finished 12/6/2020:
+// Finished 12/14/2020:
 // Player mechanics with microphone input, continuous side scrolling camera, grass sprite collide
 // Most sprites are done.
-// Game is functioning with obstacles.
-// Added BG music
+// Compiled game & screens.
+// BG music.
 
 // To do:
 // Finish drawing sprites for the goat's walk cycle & jump.
-// Decide whether to add background music/sound effects (should i do it if the player is basically screaming over it?)
-// Polish up mechanics
-// If there is time, add more obstacles or powerups.
+// Add sound effects
+// Add more obstacles or powerups
 
 let state = 1; //tell which screen its on
 let cloud1, cloud2, cloud3; //only three clouds (too many would seem too cluttered) so i didn't think it was necessary to do an array
@@ -71,6 +70,7 @@ createCanvas(1300, 725);
 				if ((x > width + 300 && x < width + 500) || (x > width + 900 && x < width + 1200) || (x > width + 1500 && x < width + 1700)|| (x > width + 2300 && x < width + 2500)|| (x > width + 3000 && x < width + 3500) || (x > width + 3700 && x < width + 4300)|| (x > width + 5000 && x < width + 5300)|| (x > width + 5700 && x < width + 5900)|| (x > width + 6000 && x < width + 6300) || (x > width + 6800 && x < width + 7300)|| (x > width + 7900 && x < width + 8300)|| (x > width + 9000 && x < width + 9500) || (x > width + 9700 && x < width + 9900) || (x > width + 10000 && x < width + 10300)){
 					thewater = createSprite(x, height - 50);
 					thewater.addImage(waterimg);
+					thewater.setCollider("rectangle", 50, 20, 100, 50); //fixing the collision detection for water
 					water.add(thewater)
 				} else {
 					grass = createSprite(x, height - 50);
@@ -83,6 +83,7 @@ createCanvas(1300, 725);
 			ground.add(grass);
 		}
 	}
+
 	goat = createSprite(width/2, height-100); //creating goat sprite
 	goat.addImage(idlegoat);
 }
@@ -136,9 +137,9 @@ function homeScreen(){ //code for home screen (STATE = 1)
 
 function game(){ //code for game (STATE = 2)
   let vol = mic.getLevel(); //getting volume of microphone
-	if (vol >= 0.1){
-		goat.velocity.y += jump; //if volume is greater than 0.1, then goat jumps
-	} else if (vol < 0.1){ // adding this fixed the bug of glitching x movement when not jumping
+	if (vol >= 0.1 && goat.position.y > height/2){
+		goat.velocity.y += jump; //if volume is greater than 0.1 & position is less than height/2, then goat jumps
+	} else if (vol < 0.1){ // adding this part fixed the bug of glitching x movement when not jumping
 		goat.velocity.y = 0;
 	}
 	if (goat.position.y == height-100){
