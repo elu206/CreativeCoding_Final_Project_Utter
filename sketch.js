@@ -8,17 +8,16 @@
 // All images & sprites are my own.
 // Font is Fredoka One Regular from https://fonts.google.com/specimen/Fredoka+One?query=fredoka
 // Libraries used: p5 sound library (for audio input) & p5 play library (for collisions, sprites, animations, etc.)
+// Sounds from freesound.org
+// Referenced p5 play website & Dan Shiffman's video on microphone input: https://www.youtube.com/watch?v=q2IDNkUws-A
 
-// Finished 12/14/2020:
-// Player mechanics with microphone input, continuous side scrolling camera, grass sprite collide
-// Most sprites are done.
+// Finished 12/15/2020:
+// Player mechanics with microphone input
+// Continuous side scrolling camera.
 // Compiled game & screens.
-// BG music.
-
-// To do:
-// Finish drawing sprites for the goat's walk cycle & jump.
-// Add sound effects
-// Add more obstacles or powerups
+// BG music, sound effects
+// Added bird obstacle.
+// Sprites are finished
 
 let state = 1; //tell which screen its on
 let cloud1, cloud2, cloud3; //only three clouds (too many would seem too cluttered) so i didn't think it was necessary to do an array
@@ -29,6 +28,12 @@ let grounded = true; //boolean to check if landed after jumping
 let grass;
 let gravity = 5;
 let jump = -6;
+let title;
+let losewords;
+let winwords;
+let howtoplaywords;
+let xpos, ypos;
+let goat;
 
 function preload(){ //loading images, font, sounds
   sky = loadImage('images/background sky.png');
@@ -38,29 +43,44 @@ function preload(){ //loading images, font, sounds
 	goatlost = loadImage('images/sadgoat.png');
 	grassimg = loadImage('images/grass.png')
 	waterimg = loadImage('images/thewater.png');
-	idlegoat = loadImage('images/idlegoat.png');
+	// idlegoat = loadImage('idlegoat.png');
 	farm = loadImage('images/farm.png');
+	//carrot = loadImage('carrot1.png');
+	bird = loadImage('images/bird1.png');
 	myFont = loadFont('fonts/FredokaOne-Regular copy.ttf');
 	bgmusic = loadSound('sounds/background music.mp3');
-	bgmusic.setVolume(0.5);
+	bgmusic.setVolume(0.1);
+	splash = loadSound('sounds/splash.wav');
+	splash.setVolume(2);
+	squawk = loadSound('sounds/squawk.wav');
+  squawk.setVolume(1.5);
 }
 
 function setup() {
   createCanvas(1300, 725);
 
+	title = "GO HOME, GOAT!"
+	losewords = "YOU LOSE..."
+	winwords = "YOU WIN!"
+	howtoplaywords = "HOW TO PLAY"
+	xpos = width/2;
+	ypos = 125;
+
 	bgmusic.loop(); //loop music
+	bgmusic.setVolume(0.5);
 
   cloud1 = new Clouds(200, 100, 1.5); //creating clouds
   cloud2 = new Clouds(1000, 250, 2);
   cloud3 = new Clouds(750, 400, 1);
 
 	//grass
-createCanvas(1300, 725);
+	createCanvas(1300, 725);
 	bgmusic.loop();
 	mic = new p5.AudioIn(); //allowing for microphone input
 	mic.start();
 	ground = new Group();
 	water = new Group();
+	birds = new Group();
 	for (let x = 50; x < SCENE_W + width; x += 100) { //creating grass sprites for beginning
 		if (x < width){
 			grass = createSprite(x, height - 50);
@@ -83,9 +103,17 @@ createCanvas(1300, 725);
 			ground.add(grass);
 		}
 	}
+	for (let i = width + 800; i < SCENE_W; i += 1500){
+		itsabird = createSprite(i, random(600, 250))
+		itsabird.addImage(bird);
+		itsabird.setCollider("circle", 0, 0, 10)
+		birds.add(itsabird);
+	}
 
-	goat = createSprite(width/2, height-100); //creating goat sprite
-	goat.addImage(idlegoat);
+	goat = createSprite(width/2, height-500); //creating goat sprite
+	let myAnimation = goat.addAnimation('running','images/goat_run1.png', 'images/idlegoat.png','images/goat_run2.png')
+	myAnimation.offY = 18
+	goat.addAnimation('jumping', 'images/goat_scream.png')
 }
 
 function draw(){
@@ -122,7 +150,13 @@ function draw(){
 
 function homeScreen(){ //code for home screen (STATE = 1)
 	textSize(100);
-  text('GO HOME, GOAT!', width/2, 125); //title
+	for (let i = 0; i < title.length; i ++){ //for title text wiggle
+		text(title[i], xpos, ypos + random(-2, 2));
+		xpos += textWidth(title[1])
+	}
+	xpos = 150
+
+  // text('GO HOME, GOAT!', width/2, 125); //title
 	for (let x = 50; x < width; x += 100) {
 		image(grassimg, x, height - 50, 100, 100);
 	}
@@ -132,31 +166,41 @@ function homeScreen(){ //code for home screen (STATE = 1)
   text('press ENTER to start the game', width/2, 480); //start
 	text('press OPTION to learn how to play', width/2, 550); //rules
   image(goathead, width/2, 330, 450, 450); //goat head
-
 }
 
 function game(){ //code for game (STATE = 2)
   let vol = mic.getLevel(); //getting volume of microphone
-	if (vol >= 0.1 && goat.position.y > height/2){
+	if (vol >= 0.1 && goat.position.y > 250){
+		goat.changeAnimation('jumping')
 		goat.velocity.y += jump; //if volume is greater than 0.1 & position is less than height/2, then goat jumps
 	} else if (vol < 0.1){ // adding this part fixed the bug of glitching x movement when not jumping
 		goat.velocity.y = 0;
+		goat.changeAnimation('running')
 	}
-	if (goat.position.y == height-100){
+
+	goat.collide(ground); //collision with ground
+
+	if (goat.collide(ground)){
 		grounded = true
 	} else{
 		grounded = false
 	}
 	if (grounded == false){
 		goat.velocity.y += gravity
-	}
+	} //gravity brings goat back to ground
 
-	//gravity brings goat back to ground
 	goat.velocity.x = 10; // x speed of goat
 
 	camera.position.y = height/2 //side scrolling camera
 	camera.position.x = goat.position.x //placing goat in center of screen
-	goat.collide(ground);
+
+	if (goat.overlap(water)){
+		splash.play();
+	}
+
+	if (goat.overlap(birds)){
+		squawk.play();
+	}
 
 	if(goat.position.x > SCENE_W){ //so that the goat stops and does not go off the screen
     goat.position.x = SCENE_W;
@@ -165,15 +209,15 @@ function game(){ //code for game (STATE = 2)
 		state = 5;
 		goat.position.x = width/2;
 		camera.position.x = goat.position.x;
-	} else if (goat.overlap(water)){ //collision for water is a little bit off, not sure why
+	} else if (goat.overlap(water) || goat.overlap(birds)){ //collision for water is a little bit off, not sure why
 		state = 4;
 		goat.velocity.x = 0;
 		goat.velocity.y = 0;
 		goat.position.x = width/2; // not sure what happened to the goat, when you retry the game
 		camera.position.x = goat.position.x;
-
 	}
 
+	image(farm, SCENE_W + width/2 - 300, height /2 + 13, 600, 500);
 	 //collision detection for goat & grass sprites
 
 	drawSprites();
@@ -181,7 +225,13 @@ function game(){ //code for game (STATE = 2)
 
 function howToPlay(){ //code for rules page (STATE = 3)
 	textSize(100);
-  text('HOW TO PLAY', width/2, 125); //headline
+  for (let i = 0; i < howtoplaywords.length; i ++){
+		text(howtoplaywords[i], xpos, ypos + random(-2, 2));
+		xpos += textWidth(howtoplaywords[1])
+	}
+
+	xpos = 250
+
 	textSize(30);
 	strokeWeight(5);
 	for (let x = 50; x < width; x += 100) {
@@ -197,7 +247,12 @@ function howToPlay(){ //code for rules page (STATE = 3)
 
 function loseScreen(){ //code for lose (STATE = 4)
 	textSize(100);
-  text('YOU LOSE...', width/2, 125);
+  for (let i = 0; i < losewords.length; i ++){
+		text(losewords[i], xpos, ypos + random(-2, 2));
+		xpos += textWidth(losewords[1])
+	}
+	xpos = 275
+
 	image(goatlost, width/2, 330, 450, 450); //goat lost
 	textSize(50);
 	text('press ENTER to try again', width/2, 480);
@@ -209,7 +264,12 @@ function loseScreen(){ //code for lose (STATE = 4)
 
 function winScreen(){ //code for win (STATE = 5)
 	textSize(100);
-  text('YOU WIN!', width/2, 125);
+  for (let i = 0; i < winwords.length; i ++){
+		text(winwords[i], xpos, ypos + random(-2, 2));
+		xpos += textWidth(winwords[1])
+	}
+	xpos = 375
+
 	image(twogoats, width/2, 330, 650, 450); //goat is back with goat dad image
 	textSize(50);
 	text('press ENTER to play again', width/2, 525);
@@ -255,11 +315,11 @@ function keyPressed(){
 		}
 	}
 
-	// if (keyCode == CONTROL){ //go to lose screen (COMMENT OUT LATER)
-	// 	state = 4
-	// }
-	// if (keyCode == SHIFT){ //go to win screen (COMMENT OUT LATER)
-	// 	state = 5;
-	// }
+	if (keyCode == CONTROL){ //go to lose screen (COMMENT OUT LATER)
+		state = 4
+	}
+	if (keyCode == SHIFT){ //go to win screen (COMMENT OUT LATER)
+		state = 5;
+	}
 	// console.log(state) //log state # to console (COMMENT OUT LATER)
 }
