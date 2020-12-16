@@ -20,7 +20,7 @@
 // Sprites are finished
 
 let state = 1; //tell which screen its on
-let cloud1, cloud2, cloud3; //only three clouds (too many would seem too cluttered) so i didn't think it was necessary to do an array
+let clouds = [];
 let mic; //microphone
 let SCENE_W = 1300 * 10; //scene width - using camera for sidescrolling effect
 let ground; //group for ground
@@ -34,6 +34,7 @@ let winwords;
 let howtoplaywords;
 let xpos, ypos;
 let goat;
+let birds = []
 
 function preload(){ //loading images, font, sounds
   sky = loadImage('images/background sky.png');
@@ -58,6 +59,9 @@ function preload(){ //loading images, font, sounds
 
 function setup() {
   createCanvas(1300, 725);
+	for (let i=0; i < 30; i++){
+    clouds[i] = new Clouds(random(0, width + SCENE_W),random(100, 500),random(1, 2));
+  } //cloud array
 
 	title = "GO HOME, GOAT!"
 	losewords = "YOU LOSE..."
@@ -69,9 +73,9 @@ function setup() {
 	bgmusic.loop(); //loop music
 	bgmusic.setVolume(0.5);
 
-  cloud1 = new Clouds(200, 100, 1.5); //creating clouds
-  cloud2 = new Clouds(1000, 250, 2);
-  cloud3 = new Clouds(750, 400, 1);
+  // cloud1 = new Clouds(200, 100, 1.5); //creating clouds
+  // cloud2 = new Clouds(1000, 250, 2);
+  // cloud3 = new Clouds(750, 400, 1);
 
 	//grass
 	createCanvas(1300, 725);
@@ -90,7 +94,7 @@ function setup() {
 				if ((x > width + 300 && x < width + 500) || (x > width + 900 && x < width + 1200) || (x > width + 1500 && x < width + 1700)|| (x > width + 2300 && x < width + 2500)|| (x > width + 3000 && x < width + 3500) || (x > width + 3700 && x < width + 4300)|| (x > width + 5000 && x < width + 5300)|| (x > width + 5700 && x < width + 5900)|| (x > width + 6000 && x < width + 6300) || (x > width + 6800 && x < width + 7300)|| (x > width + 7900 && x < width + 8300)|| (x > width + 9000 && x < width + 9500) || (x > width + 9700 && x < width + 9900) || (x > width + 10000 && x < width + 10300)){
 					thewater = createSprite(x, height - 50);
 					thewater.addImage(waterimg);
-					thewater.setCollider("rectangle", 50, 20, 100, 50); //fixing the collision detection for water
+					thewater.setCollider("rectangle", 50, 50, 100, 50); //fixing the collision detection for water
 					water.add(thewater)
 				} else {
 					grass = createSprite(x, height - 50);
@@ -103,6 +107,12 @@ function setup() {
 			ground.add(grass);
 		}
 	}
+// 	for (let i = 0; i < 20; i++){
+// 		for (let j = width + 800; j < SCENE_W; j += 1500){
+// 			birds[i] = new Birds(j, random(600, 250));
+// 		}
+// 	}
+
 	for (let i = width + 800; i < SCENE_W; i += 1500){
 		itsabird = createSprite(i, random(600, 250))
 		itsabird.addImage(bird);
@@ -110,9 +120,9 @@ function setup() {
 		birds.add(itsabird);
 	}
 
-	goat = createSprite(width/2, height-500); //creating goat sprite
+	goat = createSprite(width/2, height-300); //creating goat sprite
 	let myAnimation = goat.addAnimation('running','images/goat_run1.png', 'images/idlegoat.png','images/goat_run2.png')
-	myAnimation.offY = 18
+	myAnimation.offY = 18;
 	goat.addAnimation('jumping', 'images/goat_scream.png')
 }
 
@@ -120,12 +130,24 @@ function draw(){
   imageMode(CORNER);
   //background is sky & clouds
 	background(sky);
-  cloud1.display(); //displaying & moving each cloud
-  cloud2.display();
-  cloud3.display();
-  cloud1.move();
-  cloud2.move();
-  cloud3.move();
+  // cloud1.display(); //displaying & moving each cloud
+  // cloud2.display();
+  // cloud3.display();
+  // cloud1.move();
+  // cloud2.move();
+  // cloud3.move();
+
+	for (let i=0; i < 30; i++){
+		clouds[i].move();
+		clouds[i].display();
+  }
+
+	// for (let i = 0; i < 20; i++){
+	// 	for (let j = width + 800; j < SCENE_W; j += 1500){
+	// 		birds[i].move();
+	// 		birds[i].display();
+	// 	}
+	// }
 
 	fill(255);
   strokeWeight(10);
@@ -202,7 +224,7 @@ function game(){ //code for game (STATE = 2)
 		squawk.play();
 	}
 
-	if(goat.position.x > SCENE_W){ //so that the goat stops and does not go off the screen
+	if(goat.position.x >= SCENE_W){ //so that the goat stops and does not go off the screen
     goat.position.x = SCENE_W;
 		goat.velocity.x = 0;
 		goat.velocity.y = 0;
